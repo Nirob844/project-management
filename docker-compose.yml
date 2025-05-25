@@ -1,0 +1,95 @@
+version: "3.8"
+
+services:
+  # Backend API Service
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    ports:
+      - "4000:4000"
+    volumes:
+      - ./backend:/app
+      - /app/node_modules
+    environment:
+      - NODE_ENV=development
+      - DATABASE_URL=postgresql://postgres:postgres@postgres:5432/project_management?schema=public
+      - REDIS_URL=redis://redis:6379
+      - RABBITMQ_URL=amqp://rabbitmq:5672
+    depends_on:
+      - postgres
+      - redis
+      - rabbitmq
+      - elasticsearch
+
+  # Frontend Service
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+    environment:
+      - NODE_ENV=development
+      - NEXT_PUBLIC_API_URL=http://localhost:4000
+    depends_on:
+      - backend
+
+  # PostgreSQL Database
+  postgres:
+    image: postgres:16-alpine
+    container_name: project-management-db
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: project_management
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  # Redis Cache
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+
+  # RabbitMQ for Message Queue
+  rabbitmq:
+    image: rabbitmq:3-management-alpine
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    environment:
+      - RABBITMQ_DEFAULT_USER=guest
+      - RABBITMQ_DEFAULT_PASS=guest
+    volumes:
+      - rabbitmq_data:/var/lib/rabbitmq
+
+  # Elasticsearch for Search
+  elasticsearch:
+    image: elasticsearch:8.11.1
+    environment:
+      - discovery.type=single-node
+      - xpack.security.enabled=false
+      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+    ports:
+      - "9200:9200"
+    volumes:
+      - elasticsearch_data:/usr/share/elasticsearch/data
+
+volumes:
+  postgres_data:
+  redis_data:
+  rabbitmq_data:
+  elasticsearch_data:
