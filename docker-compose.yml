@@ -6,6 +6,7 @@ services:
     build:
       context: ./backend
       dockerfile: Dockerfile
+    container_name: project-management-api
     ports:
       - "4000:4000"
     volumes:
@@ -14,29 +15,24 @@ services:
     environment:
       - NODE_ENV=development
       - DATABASE_URL=postgresql://postgres:postgres@postgres:5432/project_management?schema=public
-      - REDIS_URL=redis://redis:6379
-      - RABBITMQ_URL=amqp://rabbitmq:5672
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - RABBITMQ_URL=amqp://guest:guest@rabbitmq:5672
+      - ELASTICSEARCH_NODE=http://elasticsearch:9200
+      - JWT_SECRET=your-super-secret-jwt-key-change-in-production
+      - JWT_EXPIRATION=1h
+      - JWT_REFRESH_SECRET=your-super-secret-refresh-key-change-in-production
+      - JWT_REFRESH_EXPIRATION=7d
+      - FRONTEND_URL=http://localhost:3000
     depends_on:
-      - postgres
-      - redis
-      - rabbitmq
-      - elasticsearch
-
-  # Frontend Service
-  frontend:
-    build:
-      context: ./frontend
-      dockerfile: Dockerfile
-    ports:
-      - "3000:3000"
-    volumes:
-      - ./frontend:/app
-      - /app/node_modules
-    environment:
-      - NODE_ENV=development
-      - NEXT_PUBLIC_API_URL=http://localhost:4000
-    depends_on:
-      - backend
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_started
+      rabbitmq:
+        condition: service_started
+      elasticsearch:
+        condition: service_started
 
   # PostgreSQL Database
   postgres:
@@ -59,14 +55,21 @@ services:
   # Redis Cache
   redis:
     image: redis:7-alpine
+    container_name: project-management-redis
     ports:
       - "6379:6379"
     volumes:
       - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
 
   # RabbitMQ for Message Queue
   rabbitmq:
     image: rabbitmq:3-management-alpine
+    container_name: project-management-rabbitmq
     ports:
       - "5672:5672"
       - "15672:15672"
@@ -75,10 +78,16 @@ services:
       - RABBITMQ_DEFAULT_PASS=guest
     volumes:
       - rabbitmq_data:/var/lib/rabbitmq
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "check_port_connectivity"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
 
   # Elasticsearch for Search
   elasticsearch:
     image: elasticsearch:8.11.1
+    container_name: project-management-elasticsearch
     environment:
       - discovery.type=single-node
       - xpack.security.enabled=false
@@ -87,6 +96,11 @@ services:
       - "9200:9200"
     volumes:
       - elasticsearch_data:/usr/share/elasticsearch/data
+    healthcheck:
+      test: ["CMD-SHELL", "curl -s http://localhost:9200 >/dev/null || exit 1"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
 
 volumes:
   postgres_data:

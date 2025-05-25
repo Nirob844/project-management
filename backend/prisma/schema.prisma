@@ -8,20 +8,21 @@ datasource db {
 }
 
 model User {
-    id            String    @id @default(uuid())
-    email         String    @unique
+    id            String         @id @default(uuid())
+    email         String         @unique
     password      String
     name          String
-    role          Role      @default(USER)
+    role          Role           @default(USER)
     avatar        String?
-    isActive      Boolean   @default(true)
-    createdAt     DateTime  @default(now())
-    updatedAt     DateTime  @updatedAt
-    projects      Project[] @relation("ProjectMembers")
-    ownedProjects Project[] @relation("ProjectOwner")
-    tasks         Task[]    @relation("TaskAssignee")
-    createdTasks  Task[]    @relation("TaskCreator")
+    isActive      Boolean        @default(true)
+    createdAt     DateTime       @default(now())
+    updatedAt     DateTime       @updatedAt
+    projects      Project[]      @relation("ProjectMembers")
+    ownedProjects Project[]      @relation("ProjectOwner")
+    tasks         Task[]         @relation("TaskAssignee")
+    createdTasks  Task[]         @relation("TaskCreator")
     comments      Comment[]
+    Notification  Notification[]
 }
 
 model Project {
@@ -37,7 +38,7 @@ model Project {
     owner       User      @relation("ProjectOwner", fields: [ownerId], references: [id])
     ownerId     String
     members     User[]    @relation("ProjectMembers")
-    tasks       Task[]
+    tasks       Task[]    @relation("ProjectTasks")
 }
 
 model Task {
@@ -49,7 +50,7 @@ model Task {
     dueDate      DateTime?
     createdAt    DateTime  @default(now())
     updatedAt    DateTime  @updatedAt
-    project      Project   @relation(fields: [projectId], references: [id])
+    project      Project   @relation("ProjectTasks", fields: [projectId], references: [id])
     projectId    String
     assignee     User?     @relation("TaskAssignee", fields: [assigneeId], references: [id])
     assigneeId   String?
@@ -72,6 +73,19 @@ model Comment {
     userId    String
 }
 
+model Notification {
+    id        String           @id @default(uuid())
+    title     String
+    message   String
+    type      NotificationType
+    isRead    Boolean          @default(false)
+    data      String?
+    user      User             @relation(fields: [userId], references: [id])
+    userId    String
+    createdAt DateTime         @default(now())
+    updatedAt DateTime         @updatedAt
+}
+
 enum Role {
     USER
     ADMIN
@@ -92,4 +106,14 @@ enum Priority {
     MEDIUM
     HIGH
     URGENT
+}
+
+enum NotificationType {
+    TASK_ASSIGNED
+    TASK_STATUS_CHANGED
+    TASK_COMMENT
+    TASK_DUE_SOON
+    PROJECT_INVITATION
+    PROJECT_ROLE_CHANGED
+    SYSTEM
 }
