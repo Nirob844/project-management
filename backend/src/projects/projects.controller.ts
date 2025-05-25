@@ -2,6 +2,7 @@ import {
   Body,
   Controller,
   Delete,
+  ForbiddenException,
   Get,
   Param,
   Patch,
@@ -24,35 +25,109 @@ export class ProjectsController {
 
   @Post()
   @Roles(Role.ADMIN, Role.PROJECT_MANAGER)
-  create(@Body() createProjectDto: CreateProjectDto) {
-    return this.projectsService.create(createProjectDto);
+  create(@Body() createProjectDto: CreateProjectDto, @Request() req) {
+    const input = {
+      ...createProjectDto,
+      startDate: createProjectDto.startDate
+        ? new Date(createProjectDto.startDate)
+        : undefined,
+      endDate: createProjectDto.endDate
+        ? new Date(createProjectDto.endDate)
+        : undefined,
+    };
+    return this.projectsService.create(input, req.user.id);
   }
 
   @Get()
+  @Roles(Role.ADMIN, Role.PROJECT_MANAGER)
   findAll() {
     return this.projectsService.findAll();
   }
 
   @Get('my-projects')
-  @Roles(Role.PROJECT_MANAGER)
   findMyProjects(@Request() req) {
-    return this.projectsService.findByManager(req.user.id);
+    return this.projectsService.findByUser(req.user.id);
   }
 
   @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.projectsService.findOne(id);
+  async findOne(@Param('id') id: string, @Request() req) {
+    const project = await this.projectsService.findOne(id);
+    if (
+      project.ownerId !== req.user.id &&
+      !project.members.some((member) => member.id === req.user.id)
+    ) {
+      throw new ForbiddenException('You do not have access to this project');
+    }
+    return project;
   }
 
   @Patch(':id')
   @Roles(Role.ADMIN, Role.PROJECT_MANAGER)
-  update(@Param('id') id: string, @Body() updateProjectDto: UpdateProjectDto) {
-    return this.projectsService.update(id, updateProjectDto);
+  async update(
+    @Param('id') id: string,
+    @Body() updateProjectDto: UpdateProjectDto,
+    @Request() req,
+  ) {
+    const project = await this.projectsService.findOne(id);
+    if (project.ownerId !== req.user.id && req.user.role !== Role.ADMIN) {
+      throw new ForbiddenException(
+        'Only project owner or admin can update the project',
+      );
+    }
+
+    const input = {
+      ...updateProjectDto,
+      startDate: updateProjectDto.startDate
+        ? new Date(updateProjectDto.startDate)
+        : undefined,
+      endDate: updateProjectDto.endDate
+        ? new Date(updateProjectDto.endDate)
+        : undefined,
+    };
+    return this.projectsService.update(id, input);
   }
 
   @Delete(':id')
   @Roles(Role.ADMIN)
-  remove(@Param('id') id: string) {
+  async remove(@Param('id') id: string, @Request() req) {
+    const project = await this.projectsService.findOne(id);
+    if (project.ownerId !== req.user.id && req.user.role !== Role.ADMIN) {
+      throw new ForbiddenException(
+        'Only project owner or admin can delete the project',
+      );
+    }
     return this.projectsService.remove(id);
+  }
+
+  @Post(':id/members/:userId')
+  @Roles(Role.ADMIN, Role.PROJECT_MANAGER)
+  async addMember(
+    @Param('id') id: string,
+    @Param('userId') userId: string,
+    @Request() req,
+  ) {
+    const project = await this.projectsService.findOne(id);
+    if (project.ownerId !== req.user.id && req.user.role !== Role.ADMIN) {
+      throw new ForbiddenException(
+        'Only project owner or admin can add members',
+      );
+    }
+    return this.projectsService.addMember(id, userId);
+  }
+
+  @Delete(':id/members/:userId')
+  @Roles(Role.ADMIN, Role.PROJECT_MANAGER)
+  async removeMember(
+    @Param('id') id: string,
+    @Param('userId') userId: string,
+    @Request() req,
+  ) {
+    const project = await this.projectsService.findOne(id);
+    if (project.ownerId !== req.user.id && req.user.role !== Role.ADMIN) {
+      throw new ForbiddenException(
+        'Only project owner or admin can remove members',
+      );
+    }
+    return this.projectsService.removeMember(id, userId);
   }
 }
