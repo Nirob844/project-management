@@ -1,28 +1,43 @@
+import { Field, InputType } from '@nestjs/graphql';
 import { Role } from '@prisma/client';
 import {
   IsEmail,
-  IsEnum,
+  IsNotEmpty,
   IsOptional,
   IsString,
+  Matches,
   MinLength,
 } from 'class-validator';
 
+@InputType()
 export class CreateUserDto {
-  @IsEmail()
-  email: string;
-
+  @Field()
   @IsString()
-  @MinLength(6)
-  password: string;
-
-  @IsString()
+  @IsNotEmpty()
   name: string;
 
+  @Field()
+  @IsEmail()
+  @IsNotEmpty()
+  email: string;
+
+  @Field()
+  @IsString()
+  @IsNotEmpty()
+  @MinLength(8)
+  @Matches(/((?=.*\d)|(?=.*\W+))(?![.\n])(?=.*[A-Z])(?=.*[a-z]).*$/, {
+    message:
+      'Password must contain at least 1 uppercase letter, 1 lowercase letter, and 1 number or special character',
+  })
+  password: string;
+
+  @Field(() => String, { nullable: true })
   @IsString()
   @IsOptional()
   avatar?: string;
 
-  @IsEnum(Role)
+  @Field(() => String, { defaultValue: 'USER' })
+  @IsString()
   @IsOptional()
-  role?: Role;
+  role?: Role = Role.USER;
 }
