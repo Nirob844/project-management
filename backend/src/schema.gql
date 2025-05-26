@@ -4,9 +4,7 @@
 
 input CreateProjectInput {
   description: String
-  endDate: DateTime
   name: String!
-  startDate: DateTime
   status: String
 }
 
@@ -111,10 +109,8 @@ type Task {
 
 input UpdateProjectInput {
   description: String
-  endDate: DateTime
   name: String
   progress: Float
-  startDate: DateTime
   status: String
 }
 

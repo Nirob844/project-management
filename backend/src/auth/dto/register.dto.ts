@@ -3,6 +3,7 @@ import { Role } from '@prisma/client';
 import {
   IsEmail,
   IsNotEmpty,
+  IsOptional,
   IsString,
   Matches,
   MinLength,
@@ -32,9 +33,11 @@ export class RegisterDto {
 
   @Field(() => String, { nullable: true })
   @IsString()
+  @IsOptional()
   avatar?: string;
 
   @Field(() => String, { defaultValue: 'USER' })
   @IsString()
+  @IsOptional()
   role?: Role = Role.USER;
 }

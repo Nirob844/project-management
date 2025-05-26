@@ -1,6 +1,5 @@
-import { ValidationPipe } from '@nestjs/common';
+import { ValidationPipe, VersioningType } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
-import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { AppModule } from './app.module';
 
 async function bootstrap() {
@@ -8,6 +7,16 @@ async function bootstrap() {
 
   // Enable CORS
   app.enableCors();
+
+  // Enable API versioning
+  app.enableVersioning({
+    type: VersioningType.URI,
+    prefix: 'v',
+    defaultVersion: '1',
+  });
+
+  // Set global prefix
+  app.setGlobalPrefix('api');
 
   // Enable validation
   app.useGlobalPipes(
@@ -17,19 +26,9 @@ async function bootstrap() {
     }),
   );
 
-  // Swagger documentation
-  const config = new DocumentBuilder()
-    .setTitle('Project Management API')
-    .setDescription('The Project Management API description')
-    .setVersion('1.0')
-    .addBearerAuth()
-    .build();
-  const document = SwaggerModule.createDocument(app, config);
-  SwaggerModule.setup('api', app, document);
-
   // Start the server
   const port = process.env.PORT || 5000;
   await app.listen(port);
-  console.log(`Application is running on: http://localhost:${port}`);
+  console.log(`Application is running on: http://localhost:${port}/api/v1`);
 }
 bootstrap();

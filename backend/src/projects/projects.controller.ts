@@ -10,6 +10,12 @@ import {
   Request,
   UseGuards,
 } from '@nestjs/common';
+import {
+  ApiBearerAuth,
+  ApiOperation,
+  ApiResponse,
+  ApiTags,
+} from '@nestjs/swagger';
 import { Role } from '@prisma/client';
 import { Roles } from '../auth/decorators/roles.decorator';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
@@ -18,6 +24,8 @@ import { CreateProjectDto } from './dto/create-project.dto';
 import { UpdateProjectDto } from './dto/update-project.dto';
 import { ProjectsService } from './projects.service';
 
+@ApiTags('Projects')
+@ApiBearerAuth('JWT-auth')
 @Controller('projects')
 @UseGuards(JwtAuthGuard, RolesGuard)
 export class ProjectsController {
@@ -25,21 +33,21 @@ export class ProjectsController {
 
   @Post()
   @Roles(Role.ADMIN, Role.PROJECT_MANAGER)
+  @ApiOperation({
+    summary: 'Create a new project (Admin/Project Manager only)',
+  })
+  @ApiResponse({ status: 201, description: 'Project created successfully' })
+  @ApiResponse({
+    status: 403,
+    description: 'Forbidden - Insufficient permissions',
+  })
   create(@Body() createProjectDto: CreateProjectDto, @Request() req) {
-    const input = {
-      ...createProjectDto,
-      startDate: createProjectDto.startDate
-        ? new Date(createProjectDto.startDate)
-        : undefined,
-      endDate: createProjectDto.endDate
-        ? new Date(createProjectDto.endDate)
-        : undefined,
-    };
-    return this.projectsService.create(input, req.user.id);
+    return this.projectsService.create(createProjectDto, req.user.id);
   }
 
   @Get()
-  @Roles(Role.ADMIN, Role.PROJECT_MANAGER)
+  @ApiOperation({ summary: 'Get all projects' })
+  @ApiResponse({ status: 200, description: 'Return all projects' })
   findAll() {
     return this.projectsService.findAll();
   }
@@ -50,6 +58,9 @@ export class ProjectsController {
   }
 
   @Get(':id')
+  @ApiOperation({ summary: 'Get project by ID' })
+  @ApiResponse({ status: 200, description: 'Return project details' })
+  @ApiResponse({ status: 404, description: 'Project not found' })
   async findOne(@Param('id') id: string, @Request() req) {
     const project = await this.projectsService.findOne(id);
     if (
@@ -63,6 +74,13 @@ export class ProjectsController {
 
   @Patch(':id')
   @Roles(Role.ADMIN, Role.PROJECT_MANAGER)
+  @ApiOperation({ summary: 'Update project (Admin/Project Manager only)' })
+  @ApiResponse({ status: 200, description: 'Project updated successfully' })
+  @ApiResponse({
+    status: 403,
+    description: 'Forbidden - Insufficient permissions',
+  })
+  @ApiResponse({ status: 404, description: 'Project not found' })
   async update(
     @Param('id') id: string,
     @Body() updateProjectDto: UpdateProjectDto,
@@ -74,21 +92,18 @@ export class ProjectsController {
         'Only project owner or admin can update the project',
       );
     }
-
-    const input = {
-      ...updateProjectDto,
-      startDate: updateProjectDto.startDate
-        ? new Date(updateProjectDto.startDate)
-        : undefined,
-      endDate: updateProjectDto.endDate
-        ? new Date(updateProjectDto.endDate)
-        : undefined,
-    };
-    return this.projectsService.update(id, input);
+    return this.projectsService.update(id, updateProjectDto);
   }
 
   @Delete(':id')
   @Roles(Role.ADMIN)
+  @ApiOperation({ summary: 'Delete project (Admin only)' })
+  @ApiResponse({ status: 200, description: 'Project deleted successfully' })
+  @ApiResponse({
+    status: 403,
+    description: 'Forbidden - Admin access required',
+  })
+  @ApiResponse({ status: 404, description: 'Project not found' })
   async remove(@Param('id') id: string, @Request() req) {
     const project = await this.projectsService.findOne(id);
     if (project.ownerId !== req.user.id && req.user.role !== Role.ADMIN) {

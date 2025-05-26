@@ -1,6 +1,6 @@
 import { Field, InputType } from '@nestjs/graphql';
 import { Status } from '@prisma/client';
-import { IsDate, IsOptional, IsString } from 'class-validator';
+import { IsOptional, IsString } from 'class-validator';
 
 @InputType()
 export class UpdateProjectInput {
@@ -17,16 +17,6 @@ export class UpdateProjectInput {
   @Field(() => String, { nullable: true })
   @IsOptional()
   status?: Status;
-
-  @Field({ nullable: true })
-  @IsOptional()
-  @IsDate()
-  startDate?: Date;
-
-  @Field({ nullable: true })
-  @IsOptional()
-  @IsDate()
-  endDate?: Date;
 
   @Field({ nullable: true })
   @IsOptional()
