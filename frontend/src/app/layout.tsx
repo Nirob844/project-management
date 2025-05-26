@@ -1,15 +1,18 @@
+"use client";
+
 import Footer from "@/components/Footer";
 import Navbar from "@/components/Navbar";
-import type { Metadata } from "next";
+import { store } from "@/redux/store";
 import { Inter } from "next/font/google";
+import { Provider } from "react-redux";
 import "./globals.css";
 
 const inter = Inter({ subsets: ["latin"] });
 
-export const metadata: Metadata = {
-  title: "Project Management System",
-  description: "A modern project management system",
-};
+// export const metadata: Metadata = {
+//   title: "Project Management System",
+//   description: "A modern project management system",
+// };
 
 export default function RootLayout({
   children,
@@ -19,11 +22,13 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={inter.className}>
-        <div className="min-h-screen flex flex-col">
-          <Navbar />
-          <main className="flex-grow">{children}</main>
-          <Footer />
-        </div>
+        <Provider store={store}>
+          <div className="min-h-screen flex flex-col">
+            <Navbar />
+            <main className="flex-grow">{children}</main>
+            <Footer />
+          </div>
+        </Provider>
       </body>
     </html>
   );

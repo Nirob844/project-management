@@ -13,7 +13,7 @@ export interface Task {
   status: "TODO" | "IN_PROGRESS" | "DONE";
   priority: "LOW" | "MEDIUM" | "HIGH";
   dueDate: string;
-  assignedTo: string;
+  assigneeId: string;
   projectId: string;
   createdAt: string;
   updatedAt: string;
