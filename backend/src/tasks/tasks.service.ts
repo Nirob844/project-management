@@ -3,7 +3,6 @@ import { NotificationType, Priority, Status } from '@prisma/client';
 import { CacheService } from '../cache/cache.service';
 import { NotificationsService } from '../notifications/notifications.service';
 import { PrismaService } from '../prisma/prisma.service';
-import { SearchService } from '../search/search.service';
 import { CreateTaskInput } from './dto/create-task.input';
 import { UpdateTaskInput } from './dto/update-task.input';
 
@@ -21,7 +20,6 @@ export class TasksService {
     private prisma: PrismaService,
     private cacheService: CacheService,
     private notificationsService: NotificationsService,
-    private searchService: SearchService,
   ) {}
 
   async create(input: CreateTaskInput, creatorId: string) {
@@ -41,7 +39,6 @@ export class TasksService {
       },
     });
 
-    await this.searchService.indexTask(task);
     await this.invalidateCache();
 
     if (task.assigneeId) {
@@ -204,7 +201,6 @@ export class TasksService {
       },
     });
 
-    await this.searchService.indexTask(updatedTask);
     await this.invalidateCache(id);
 
     // Notify assignee of status change
@@ -248,7 +244,6 @@ export class TasksService {
       where: { id },
     });
 
-    await this.searchService.deleteDocument(`task_${id}`);
     await this.invalidateCache(id);
 
     // Notify assignee of task deletion

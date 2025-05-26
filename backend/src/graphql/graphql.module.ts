@@ -2,6 +2,8 @@ import { ApolloDriver, ApolloDriverConfig } from '@nestjs/apollo';
 import { Module } from '@nestjs/common';
 import { GraphQLModule } from '@nestjs/graphql';
 import { join } from 'path';
+import { AuthModule } from '../auth/auth.module';
+import { TasksModule } from '../tasks/tasks.module';
 import { TaskResolver } from './task.resolver';
 
 @Module({
@@ -13,6 +15,8 @@ import { TaskResolver } from './task.resolver';
       playground: true,
       context: ({ req }) => ({ req }),
     }),
+    TasksModule,
+    AuthModule,
   ],
   providers: [TaskResolver],
 })

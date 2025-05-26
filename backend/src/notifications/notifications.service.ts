@@ -89,6 +89,42 @@ export class NotificationsService {
     return { message: 'Notification deleted' };
   }
 
+  async notifyNewComment(
+    taskId: string,
+    commentId: string,
+    userId: string,
+    content: string,
+  ) {
+    const task = await this.prisma.task.findUnique({
+      where: { id: taskId },
+      include: { assignee: true, creator: true },
+    });
+
+    if (!task) {
+      return;
+    }
+
+    // Notify task assignee if different from comment author
+    if (task.assigneeId && task.assigneeId !== userId) {
+      await this.create(task.assigneeId, {
+        title: 'New Comment',
+        message: `New comment on task "${task.title}": ${content}`,
+        type: NotificationType.TASK_COMMENT,
+        data: { taskId, commentId },
+      });
+    }
+
+    // Notify task creator if different from comment author
+    if (task.creatorId && task.creatorId !== userId) {
+      await this.create(task.creatorId, {
+        title: 'New Comment',
+        message: `New comment on task "${task.title}": ${content}`,
+        type: NotificationType.TASK_COMMENT,
+        data: { taskId, commentId },
+      });
+    }
+  }
+
   private async invalidateCache(userId: string) {
     const key = this.CACHE_KEYS.NOTIFICATIONS + userId;
     await this.cacheService.del(key);
