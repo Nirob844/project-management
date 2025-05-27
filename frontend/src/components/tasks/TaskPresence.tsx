@@ -1,8 +1,8 @@
 "use client";
 
 import {
-  useGetTaskPresenceQuery,
-  useUpdateTaskPresenceMutation,
+  useGetTaskByIdQuery,
+  useUpdateTaskMutation,
 } from "@/redux/api/taskApi";
 import { UserCircleIcon } from "@heroicons/react/24/outline";
 import { useEffect } from "react";
@@ -13,8 +13,8 @@ interface TaskPresenceProps {
 }
 
 export default function TaskPresence({ taskId, userId }: TaskPresenceProps) {
-  const { data: presence, refetch } = useGetTaskPresenceQuery(taskId);
-  const [updatePresence] = useUpdateTaskPresenceMutation();
+  const { data: presence, refetch } = useGetTaskByIdQuery(taskId);
+  const [updatePresence] = useUpdateTaskMutation();
 
   useEffect(() => {
     // Update presence every 30 seconds
@@ -33,7 +33,7 @@ export default function TaskPresence({ taskId, userId }: TaskPresenceProps) {
   return (
     <div className="flex items-center space-x-2">
       <div className="flex -space-x-2">
-        {presence.map((user) => (
+        {presence.map((user: any) => (
           <div
             key={user.userId}
             className="relative"
