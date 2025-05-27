@@ -1,16 +1,14 @@
 "use client";
 
-import { logout } from "@/services/auth";
-import { getUserInfo } from "@/utils/auth";
+import { authKey } from "@/constants/storage";
+import { getUserInfo, removeUserInfo } from "@/utils/auth";
 import { Dialog, Transition } from "@headlessui/react";
 import {
   CalendarIcon,
   ChartBarIcon,
-  ClipboardDocumentListIcon,
   Cog6ToothIcon,
   FolderIcon,
   HomeIcon,
-  ShieldCheckIcon,
   UserGroupIcon,
   UserPlusIcon,
   XMarkIcon,
@@ -18,6 +16,7 @@ import {
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { Fragment, useState } from "react";
+import Navbar from "../Navbar";
 
 interface UserInfo {
   sub: string;
@@ -53,12 +52,6 @@ const adminNavigation = [
     roles: ["ADMIN"],
   },
   {
-    name: "Role Management",
-    href: "/dashboard/roles",
-    icon: ShieldCheckIcon,
-    roles: ["ADMIN"],
-  },
-  {
     name: "Analytics",
     href: "/dashboard/analytics",
     icon: ChartBarIcon,
@@ -71,12 +64,6 @@ const projectManagerNavigation = [
     name: "Team Management",
     href: "/dashboard/team",
     icon: UserGroupIcon,
-    roles: ["PROJECT_MANAGER"],
-  },
-  {
-    name: "Project Reports",
-    href: "/dashboard/reports",
-    icon: ClipboardDocumentListIcon,
     roles: ["PROJECT_MANAGER"],
   },
 ];
@@ -106,7 +93,7 @@ export default function DashboardLayout({
 
   const handleLogout = async () => {
     try {
-      await logout();
+      removeUserInfo(authKey);
       router.push("/login");
     } catch (error) {
       console.error("Logout failed:", error);
@@ -127,6 +114,7 @@ export default function DashboardLayout({
 
   return (
     <div>
+      <Navbar />
       <Transition.Root show={sidebarOpen} as={Fragment}>
         <Dialog
           as="div"
@@ -259,7 +247,10 @@ export default function DashboardLayout({
               </li>
               <li className="mt-auto">
                 <button
-                  onClick={handleLogout}
+                  onClick={() => {
+                    removeUserInfo(authKey);
+                    router.push("/login");
+                  }}
                   className="group -mx-2 flex gap-x-3 rounded-md p-2 text-sm font-semibold leading-6 text-gray-700 hover:bg-gray-50 hover:text-primary-600"
                 >
                   <XMarkIcon

@@ -1,10 +1,10 @@
 "use client";
 
+import Footer from "@/components/Footer";
 import { store } from "@/redux/store";
 import { Inter } from "next/font/google";
 import { Provider } from "react-redux";
 import "./globals.css";
-
 const inter = Inter({ subsets: ["latin"] });
 
 // export const metadata: Metadata = {
@@ -23,6 +23,7 @@ export default function RootLayout({
         <Provider store={store}>
           <div className="min-h-screen flex flex-col">
             <main className="flex-grow">{children}</main>
+            <Footer />
           </div>
         </Provider>
       </body>

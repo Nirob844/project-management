@@ -6,6 +6,14 @@ export type Status =
   | "ON_HOLD"
   | "CANCELLED";
 
+export interface User {
+  id: string;
+  name: string;
+  email: string;
+  avatar: string;
+  role: string;
+}
+
 export interface Task {
   id: string;
   title: string;
@@ -13,7 +21,7 @@ export interface Task {
   status: "TODO" | "IN_PROGRESS" | "DONE";
   priority: "LOW" | "MEDIUM" | "HIGH";
   dueDate: string;
-  assigneeId: string;
+  assignee: User;
   projectId: string;
   createdAt: string;
   updatedAt: string;

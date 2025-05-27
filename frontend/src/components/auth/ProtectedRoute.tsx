@@ -1,6 +1,6 @@
 "use client";
 
-import { useAppSelector } from "@/redux/hooks";
+import { isLoggedIn } from "@/utils/auth";
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
 
@@ -9,12 +9,12 @@ export default function ProtectedRoute({
 }: {
   children: React.ReactNode;
 }) {
-  const { isAuthenticated } = useAppSelector((state) => state.auth);
+  const isAuthenticated = isLoggedIn();
   const router = useRouter();
 
   useEffect(() => {
     if (!isAuthenticated) {
-      router.push("/auth/login");
+      router.push("/login");
     }
   }, [isAuthenticated, router]);
 

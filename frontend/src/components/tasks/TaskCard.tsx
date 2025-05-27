@@ -51,7 +51,7 @@ export default function TaskCard({ task }: TaskCardProps) {
           </div>
           <div className="flex items-center text-sm text-gray-500">
             <UserCircleIcon className="mr-1.5 h-5 w-5 flex-shrink-0 text-gray-400" />
-            {task.assigneeId}
+            {task.assignee.name}
           </div>
         </div>
         <span
