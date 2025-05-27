@@ -1,28 +1,93 @@
 "use client";
 
 import { logout } from "@/services/auth";
+import { getUserInfo } from "@/utils/auth";
 import { Dialog, Transition } from "@headlessui/react";
 import {
-  Bars3Icon,
   CalendarIcon,
   ChartBarIcon,
+  ClipboardDocumentListIcon,
   Cog6ToothIcon,
   FolderIcon,
   HomeIcon,
+  ShieldCheckIcon,
   UserGroupIcon,
+  UserPlusIcon,
   XMarkIcon,
 } from "@heroicons/react/24/outline";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { Fragment, useState } from "react";
 
-const navigation = [
-  { name: "Dashboard", href: "/dashboard", icon: HomeIcon },
-  { name: "Projects", href: "/dashboard/projects", icon: FolderIcon },
-  { name: "Tasks", href: "/dashboard/tasks", icon: CalendarIcon },
-  { name: "Team", href: "/dashboard/team", icon: UserGroupIcon },
-  { name: "Analytics", href: "/dashboard/analytics", icon: ChartBarIcon },
-  { name: "Settings", href: "/dashboard/settings", icon: Cog6ToothIcon },
+interface UserInfo {
+  sub: string;
+  role: "ADMIN" | "USER" | "PROJECT_MANAGER";
+}
+
+const baseNavigation = [
+  {
+    name: "Dashboard",
+    href: "/dashboard",
+    icon: HomeIcon,
+    roles: ["ADMIN", "USER", "PROJECT_MANAGER"],
+  },
+  {
+    name: "Projects",
+    href: "/dashboard/projects",
+    icon: FolderIcon,
+    roles: ["ADMIN", "USER", "PROJECT_MANAGER"],
+  },
+  {
+    name: "Tasks",
+    href: "/dashboard/tasks",
+    icon: CalendarIcon,
+    roles: ["ADMIN", "USER", "PROJECT_MANAGER"],
+  },
+];
+
+const adminNavigation = [
+  {
+    name: "User Management",
+    href: "/dashboard/users",
+    icon: UserPlusIcon,
+    roles: ["ADMIN"],
+  },
+  {
+    name: "Role Management",
+    href: "/dashboard/roles",
+    icon: ShieldCheckIcon,
+    roles: ["ADMIN"],
+  },
+  {
+    name: "Analytics",
+    href: "/dashboard/analytics",
+    icon: ChartBarIcon,
+    roles: ["ADMIN"],
+  },
+];
+
+const projectManagerNavigation = [
+  {
+    name: "Team Management",
+    href: "/dashboard/team",
+    icon: UserGroupIcon,
+    roles: ["PROJECT_MANAGER"],
+  },
+  {
+    name: "Project Reports",
+    href: "/dashboard/reports",
+    icon: ClipboardDocumentListIcon,
+    roles: ["PROJECT_MANAGER"],
+  },
+];
+
+const settingsNavigation = [
+  {
+    name: "Settings",
+    href: "/dashboard/settings",
+    icon: Cog6ToothIcon,
+    roles: ["ADMIN", "USER", "PROJECT_MANAGER"],
+  },
 ];
 
 function classNames(...classes: string[]) {
@@ -37,6 +102,7 @@ export default function DashboardLayout({
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const pathname = usePathname();
   const router = useRouter();
+  const { role } = getUserInfo() as UserInfo;
 
   const handleLogout = async () => {
     try {
@@ -46,6 +112,18 @@ export default function DashboardLayout({
       console.error("Logout failed:", error);
     }
   };
+
+  const getNavigationItems = () => {
+    const allNavigation = [
+      ...baseNavigation,
+      ...adminNavigation,
+      ...projectManagerNavigation,
+      ...settingsNavigation,
+    ];
+    return allNavigation.filter((item) => item.roles.includes(role));
+  };
+
+  const navigation = getNavigationItems();
 
   return (
     <div>
@@ -197,20 +275,6 @@ export default function DashboardLayout({
       </div>
 
       <div className="lg:pl-72">
-        <div className="sticky top-0 z-40 flex h-16 shrink-0 items-center gap-x-4 border-b border-gray-200 bg-white px-4 shadow-sm sm:gap-x-6 sm:px-6 lg:px-8">
-          <button
-            type="button"
-            className="-m-2.5 p-2.5 text-gray-700 lg:hidden"
-            onClick={() => setSidebarOpen(true)}
-          >
-            <span className="sr-only">Open sidebar</span>
-            <Bars3Icon className="h-6 w-6" aria-hidden="true" />
-          </button>
-
-          {/* Separator */}
-          <div className="h-6 w-px bg-gray-200 lg:hidden" aria-hidden="true" />
-        </div>
-
         <main className="py-10">
           <div className="px-4 sm:px-6 lg:px-8">{children}</div>
         </main>

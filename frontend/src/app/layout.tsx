@@ -1,7 +1,5 @@
 "use client";
 
-import Footer from "@/components/Footer";
-import Navbar from "@/components/Navbar";
 import { store } from "@/redux/store";
 import { Inter } from "next/font/google";
 import { Provider } from "react-redux";
@@ -24,9 +22,7 @@ export default function RootLayout({
       <body className={inter.className}>
         <Provider store={store}>
           <div className="min-h-screen flex flex-col">
-            <Navbar />
             <main className="flex-grow">{children}</main>
-            <Footer />
           </div>
         </Provider>
       </body>

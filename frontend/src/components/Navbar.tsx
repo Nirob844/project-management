@@ -1,5 +1,7 @@
 "use client";
 
+import { logout } from "@/services/auth";
+import { getUserInfo } from "@/utils/auth";
 import { Disclosure, Menu, Transition } from "@headlessui/react";
 import {
   Bars3Icon,
@@ -7,22 +9,30 @@ import {
   XMarkIcon,
 } from "@heroicons/react/24/outline";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { useRouter } from "next/navigation";
 import { Fragment } from "react";
 
-const navigation = [
-  { name: "Dashboard", href: "/dashboard" },
-  { name: "Projects", href: "/projects" },
-  { name: "Tasks", href: "/tasks" },
-  { name: "Team", href: "/team" },
-];
+interface UserInfo {
+  sub: string;
+  role: "ADMIN" | "USER" | "PROJECT_MANAGER";
+}
 
 function classNames(...classes: string[]) {
   return classes.filter(Boolean).join(" ");
 }
 
 export default function Navbar() {
-  const pathname = usePathname();
+  const router = useRouter();
+  const { role } = getUserInfo() as UserInfo;
+
+  const handleLogout = async () => {
+    try {
+      await logout();
+      router.push("/login");
+    } catch (error) {
+      console.error("Logout failed:", error);
+    }
+  };
 
   return (
     <Disclosure as="nav" className="bg-white shadow">
@@ -32,28 +42,16 @@ export default function Navbar() {
             <div className="flex h-16 justify-between">
               <div className="flex">
                 <div className="flex flex-shrink-0 items-center">
-                  <Link href="/" className="text-xl font-bold text-primary-600">
+                  <Link
+                    href="/dashboard"
+                    className="text-xl font-bold text-primary-600"
+                  >
                     ProjectHub
                   </Link>
                 </div>
-                <div className="hidden sm:ml-6 sm:flex sm:space-x-8">
-                  {navigation.map((item) => (
-                    <Link
-                      key={item.name}
-                      href={item.href}
-                      className={classNames(
-                        pathname === item.href
-                          ? "border-primary-500 text-gray-900"
-                          : "border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700",
-                        "inline-flex items-center border-b-2 px-1 pt-1 text-sm font-medium"
-                      )}
-                    >
-                      {item.name}
-                    </Link>
-                  ))}
-                </div>
               </div>
               <div className="hidden sm:ml-6 sm:flex sm:items-center">
+                <span className="mr-4 text-sm text-gray-500">({role})</span>
                 <Menu as="div" className="relative ml-3">
                   <div>
                     <Menu.Button className="flex rounded-full bg-white text-sm focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2">
@@ -74,7 +72,7 @@ export default function Navbar() {
                       <Menu.Item>
                         {({ active }) => (
                           <Link
-                            href="/profile"
+                            href="/dashboard/profile"
                             className={classNames(
                               active ? "bg-gray-100" : "",
                               "block px-4 py-2 text-sm text-gray-700"
@@ -87,7 +85,7 @@ export default function Navbar() {
                       <Menu.Item>
                         {({ active }) => (
                           <Link
-                            href="/settings"
+                            href="/dashboard/settings"
                             className={classNames(
                               active ? "bg-gray-100" : "",
                               "block px-4 py-2 text-sm text-gray-700"
@@ -99,15 +97,15 @@ export default function Navbar() {
                       </Menu.Item>
                       <Menu.Item>
                         {({ active }) => (
-                          <Link
-                            href="/logout"
+                          <button
+                            onClick={handleLogout}
                             className={classNames(
                               active ? "bg-gray-100" : "",
-                              "block px-4 py-2 text-sm text-gray-700"
+                              "block w-full text-left px-4 py-2 text-sm text-gray-700"
                             )}
                           >
                             Sign out
-                          </Link>
+                          </button>
                         )}
                       </Menu.Item>
                     </Menu.Items>
@@ -128,43 +126,35 @@ export default function Navbar() {
           </div>
 
           <Disclosure.Panel className="sm:hidden">
-            <div className="space-y-1 pb-3 pt-2">
-              {navigation.map((item) => (
-                <Disclosure.Button
-                  key={item.name}
-                  as={Link}
-                  href={item.href}
-                  className={classNames(
-                    pathname === item.href
-                      ? "bg-primary-50 border-primary-500 text-primary-700"
-                      : "border-transparent text-gray-500 hover:bg-gray-50 hover:border-gray-300 hover:text-gray-700",
-                    "block border-l-4 py-2 pl-3 pr-4 text-base font-medium"
-                  )}
-                >
-                  {item.name}
-                </Disclosure.Button>
-              ))}
-            </div>
             <div className="border-t border-gray-200 pb-3 pt-4">
-              <div className="space-y-1">
+              <div className="flex items-center px-4">
+                <div className="flex-shrink-0">
+                  <UserCircleIcon className="h-8 w-8 text-gray-400" />
+                </div>
+                <div className="ml-3">
+                  <div className="text-sm font-medium text-gray-500"></div>
+                  <div className="text-xs text-gray-400">{role}</div>
+                </div>
+              </div>
+              <div className="mt-3 space-y-1">
                 <Disclosure.Button
                   as={Link}
-                  href="/profile"
+                  href="/dashboard/profile"
                   className="block px-4 py-2 text-base font-medium text-gray-500 hover:bg-gray-100 hover:text-gray-800"
                 >
                   Your Profile
                 </Disclosure.Button>
                 <Disclosure.Button
                   as={Link}
-                  href="/settings"
+                  href="/dashboard/settings"
                   className="block px-4 py-2 text-base font-medium text-gray-500 hover:bg-gray-100 hover:text-gray-800"
                 >
                   Settings
                 </Disclosure.Button>
                 <Disclosure.Button
-                  as={Link}
-                  href="/logout"
-                  className="block px-4 py-2 text-base font-medium text-gray-500 hover:bg-gray-100 hover:text-gray-800"
+                  as="button"
+                  onClick={handleLogout}
+                  className="block w-full text-left px-4 py-2 text-base font-medium text-gray-500 hover:bg-gray-100 hover:text-gray-800"
                 >
                   Sign out
                 </Disclosure.Button>
