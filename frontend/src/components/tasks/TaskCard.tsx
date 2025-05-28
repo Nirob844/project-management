@@ -1,6 +1,7 @@
 "use client";
 
-import { Task } from "@/types/task";
+import { useUpdateTaskMutation } from "@/redux/api/taskApi";
+import { Status, Task } from "@/types/task";
 import { CalendarIcon, UserCircleIcon } from "@heroicons/react/24/outline";
 import { useRouter } from "next/navigation";
 
@@ -10,6 +11,7 @@ interface TaskCardProps {
 
 export default function TaskCard({ task }: TaskCardProps) {
   const router = useRouter();
+  const [updateTask] = useUpdateTaskMutation();
 
   const priorityColors = {
     LOW: "bg-blue-100 text-blue-800",
@@ -20,12 +22,28 @@ export default function TaskCard({ task }: TaskCardProps) {
   const statusColors = {
     TODO: "bg-gray-100 text-gray-800",
     IN_PROGRESS: "bg-blue-100 text-blue-800",
-    DONE: "bg-green-100 text-green-800",
+    REVIEW: "bg-green-100 text-green-800",
+    DONE: "bg-yellow-100 text-yellow-800",
+  };
+
+  const handleStatusChange = async (newStatus: Status) => {
+    try {
+      await updateTask({
+        id: task.id,
+        status: newStatus,
+      }).unwrap();
+    } catch (err) {
+      console.error("Failed to update task status:", err);
+    }
+  };
+
+  const handleCardClick = () => {
+    router.push(`/dashboard/tasks/${task.id}`);
   };
 
   return (
     <div
-      onClick={() => router.push(`/dashboard/tasks/${task.id}`)}
+      onClick={handleCardClick}
       className="bg-white rounded-lg shadow p-4 hover:shadow-md transition-shadow cursor-pointer"
     >
       <div className="flex items-start justify-between">
@@ -54,13 +72,19 @@ export default function TaskCard({ task }: TaskCardProps) {
             {task.assignee.name}
           </div>
         </div>
-        <span
-          className={`inline-flex items-center rounded-full px-2 py-1 text-xs font-medium ${
+        <select
+          value={task.status}
+          onChange={(e) => handleStatusChange(e.target.value as Status)}
+          onClick={(e) => e.stopPropagation()}
+          className={`rounded-full px-2 py-1 text-xs font-medium cursor-pointer ${
             statusColors[task.status]
-          }`}
+          } border-0 focus:ring-0`}
         >
-          {task.status}
-        </span>
+          <option value="TODO">TODO</option>
+          <option value="IN_PROGRESS">IN PROGRESS</option>
+          <option value="REVIEW">Review</option>
+          <option value="DONE">Done</option>
+        </select>
       </div>
     </div>
   );

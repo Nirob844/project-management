@@ -1,25 +1,14 @@
-export type Priority = "LOW" | "MEDIUM" | "HIGH";
-export type Status =
-  | "TODO"
-  | "IN_PROGRESS"
-  | "COMPLETED"
-  | "ON_HOLD"
-  | "CANCELLED";
+import { User } from "./user";
 
-export interface User {
-  id: string;
-  name: string;
-  email: string;
-  avatar: string;
-  role: string;
-}
+export type Priority = "LOW" | "MEDIUM" | "HIGH";
+export type Status = "TODO" | "IN_PROGRESS" | "DONE" | "REVIEW";
 
 export interface Task {
   id: string;
   title: string;
   description: string;
-  status: "TODO" | "IN_PROGRESS" | "DONE";
-  priority: "LOW" | "MEDIUM" | "HIGH";
+  status: Status;
+  priority: Priority;
   dueDate: string;
   assignee: User;
   projectId: string;
