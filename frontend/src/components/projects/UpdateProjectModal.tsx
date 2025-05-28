@@ -14,7 +14,7 @@ interface UpdateProjectModalProps {
 interface FormData {
   name: string;
   description: string;
-  status: "active" | "completed" | "archived";
+  status: "ACTIVE" | "ARCHIVED" | "DONE";
 }
 
 export default function UpdateProjectModal({
@@ -99,9 +99,9 @@ export default function UpdateProjectModal({
             {...register("status", { required: "Status is required" })}
             className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 sm:text-sm"
           >
-            <option value="active">Active</option>
-            <option value="completed">Completed</option>
-            <option value="archived">Archived</option>
+            <option value="ACTIVE">Active</option>
+            <option value="ARCHIVED">Archived</option>
+            <option value="DONE">Complete</option>
           </select>
           {errors.status && (
             <p className="mt-1 text-sm text-red-600">{errors.status.message}</p>

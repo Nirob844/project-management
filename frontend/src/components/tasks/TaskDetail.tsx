@@ -1,6 +1,7 @@
 "use client";
 
 import { useGetTaskByIdQuery } from "@/redux/api/taskApi";
+import { getUserInfo } from "@/utils/auth";
 import { PencilIcon, TrashIcon } from "@heroicons/react/24/outline";
 import { useState } from "react";
 import DeleteTaskModal from "./DeleteTaskModal";
@@ -10,8 +11,12 @@ import UpdateTaskModal from "./UpdateTaskModal";
 interface TaskDetailProps {
   taskId: string;
 }
+interface UserInfo {
+  role: string;
+}
 
 export default function TaskDetail({ taskId }: TaskDetailProps) {
+  const { role } = getUserInfo() as UserInfo;
   const [isUpdateModalOpen, setIsUpdateModalOpen] = useState(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const { data: task, isLoading, error } = useGetTaskByIdQuery(taskId);
@@ -80,19 +85,23 @@ export default function TaskDetail({ taskId }: TaskDetailProps) {
           </div>
           <div className="flex items-center space-x-4">
             <TaskPresence taskId={taskId} userId={task.assignee.id} />
-            <button
-              onClick={() => setIsUpdateModalOpen(true)}
-              className="inline-flex items-center rounded-lg bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50 transition-colors duration-200"
-            >
-              <PencilIcon className="h-4 w-4 mr-1.5" />
-              Edit
-            </button>
-            <button
-              onClick={() => setIsDeleteModalOpen(true)}
-              className="inline-flex items-center rounded-lg bg-red-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-red-500 transition-colors duration-200"
-            >
-              <TrashIcon className="h-4 w-4" />
-            </button>
+            {role === "ADMIN" && (
+              <>
+                <button
+                  onClick={() => setIsUpdateModalOpen(true)}
+                  className="inline-flex items-center rounded-lg bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50 transition-colors duration-200"
+                >
+                  <PencilIcon className="h-4 w-4 mr-1.5" />
+                  Edit
+                </button>
+                <button
+                  onClick={() => setIsDeleteModalOpen(true)}
+                  className="inline-flex items-center rounded-lg bg-red-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-red-500 transition-colors duration-200"
+                >
+                  <TrashIcon className="h-4 w-4" />
+                </button>
+              </>
+            )}
           </div>
         </div>
 
@@ -119,17 +128,21 @@ export default function TaskDetail({ taskId }: TaskDetailProps) {
         </div>
       </div>
 
-      <UpdateTaskModal
-        isOpen={isUpdateModalOpen}
-        onClose={() => setIsUpdateModalOpen(false)}
-        task={task}
-      />
+      {role === "ADMIN" && (
+        <>
+          <UpdateTaskModal
+            isOpen={isUpdateModalOpen}
+            onClose={() => setIsUpdateModalOpen(false)}
+            task={task}
+          />
 
-      <DeleteTaskModal
-        isOpen={isDeleteModalOpen}
-        onClose={() => setIsDeleteModalOpen(false)}
-        taskId={taskId}
-      />
+          <DeleteTaskModal
+            isOpen={isDeleteModalOpen}
+            onClose={() => setIsDeleteModalOpen(false)}
+            taskId={taskId}
+          />
+        </>
+      )}
     </div>
   );
 }

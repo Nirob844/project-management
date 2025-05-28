@@ -6,8 +6,13 @@ import ProjectCard from "@/components/projects/ProjectCard";
 import UpdateProjectModal from "@/components/projects/UpdateProjectModal";
 import { useGetProjectsQuery } from "@/redux/api/projectApi";
 import { Project } from "@/types/project";
+import { getUserInfo } from "@/utils/auth";
 import { PlusIcon } from "@heroicons/react/24/outline";
 import { useState } from "react";
+
+interface UserInfo {
+  role: string;
+}
 
 export default function ProjectList() {
   const [searchTerm, setSearchTerm] = useState("");
@@ -15,6 +20,7 @@ export default function ProjectList() {
   const [selectedProject, setSelectedProject] = useState<Project | null>(null);
   const [isUpdateModalOpen, setIsUpdateModalOpen] = useState(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const { role } = getUserInfo() as UserInfo;
 
   const { data: projects, isLoading, error } = useGetProjectsQuery({});
 
@@ -57,13 +63,15 @@ export default function ProjectList() {
     <div className="space-y-6 p-6">
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-semibold text-gray-900">Projects</h1>
-        <button
-          onClick={() => setIsCreateModalOpen(true)}
-          className="inline-flex items-center rounded-md bg-primary-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-primary-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-600"
-        >
-          <PlusIcon className="-ml-0.5 mr-1.5 h-5 w-5" aria-hidden="true" />
-          Create Project
-        </button>
+        {role === "ADMIN" && (
+          <button
+            onClick={() => setIsCreateModalOpen(true)}
+            className="inline-flex items-center rounded-md bg-primary-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-primary-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-600"
+          >
+            <PlusIcon className="-ml-0.5 mr-1.5 h-5 w-5" aria-hidden="true" />
+            Create Project
+          </button>
+        )}
       </div>
 
       <div className="relative">
@@ -110,15 +118,20 @@ export default function ProjectList() {
           <p className="mt-1 text-sm text-gray-500">
             Get started by creating a new project.
           </p>
-          <div className="mt-6">
-            <button
-              onClick={() => setIsCreateModalOpen(true)}
-              className="inline-flex items-center rounded-md bg-primary-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-primary-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-600"
-            >
-              <PlusIcon className="-ml-0.5 mr-1.5 h-5 w-5" aria-hidden="true" />
-              New Project
-            </button>
-          </div>
+          {role === "ADMIN" && (
+            <div className="mt-6">
+              <button
+                onClick={() => setIsCreateModalOpen(true)}
+                className="inline-flex items-center rounded-md bg-primary-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-primary-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-600"
+              >
+                <PlusIcon
+                  className="-ml-0.5 mr-1.5 h-5 w-5"
+                  aria-hidden="true"
+                />
+                New Project
+              </button>
+            </div>
+          )}
         </div>
       ) : (
         <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
@@ -126,37 +139,43 @@ export default function ProjectList() {
             <ProjectCard
               key={project.id}
               project={project}
-              onEdit={() => handleEdit(project)}
-              onDelete={() => handleDelete(project)}
+              onEdit={role === "ADMIN" ? () => handleEdit(project) : undefined}
+              onDelete={
+                role === "ADMIN" ? () => handleDelete(project) : undefined
+              }
             />
           ))}
         </div>
       )}
 
-      <CreateProjectModal
-        isOpen={isCreateModalOpen}
-        onClose={() => setIsCreateModalOpen(false)}
-      />
-
-      {selectedProject && (
+      {role === "ADMIN" && (
         <>
-          <UpdateProjectModal
-            isOpen={isUpdateModalOpen}
-            onClose={() => {
-              setIsUpdateModalOpen(false);
-              setSelectedProject(null);
-            }}
-            project={selectedProject}
+          <CreateProjectModal
+            isOpen={isCreateModalOpen}
+            onClose={() => setIsCreateModalOpen(false)}
           />
 
-          <DeleteProjectModal
-            isOpen={isDeleteModalOpen}
-            onClose={() => {
-              setIsDeleteModalOpen(false);
-              setSelectedProject(null);
-            }}
-            project={selectedProject}
-          />
+          {selectedProject && (
+            <>
+              <UpdateProjectModal
+                isOpen={isUpdateModalOpen}
+                onClose={() => {
+                  setIsUpdateModalOpen(false);
+                  setSelectedProject(null);
+                }}
+                project={selectedProject}
+              />
+
+              <DeleteProjectModal
+                isOpen={isDeleteModalOpen}
+                onClose={() => {
+                  setIsDeleteModalOpen(false);
+                  setSelectedProject(null);
+                }}
+                project={selectedProject}
+              />
+            </>
+          )}
         </>
       )}
     </div>

@@ -55,7 +55,7 @@ export default function UpdateTaskModal({
         dueDate: new Date(data.dueDate).toISOString(),
       };
 
-      await updateTask({ id: task.id, task: formattedData }).unwrap();
+      await updateTask({ id: task.id, ...formattedData }).unwrap();
       onClose();
     } catch (err) {
       // Error is handled by RTK Query

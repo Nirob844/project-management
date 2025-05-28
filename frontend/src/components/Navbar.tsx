@@ -1,7 +1,7 @@
 "use client";
 
-import { logout } from "@/services/auth";
-import { getUserInfo } from "@/utils/auth";
+import { authKey } from "@/constants/storage";
+import { getUserInfo, removeUserInfo } from "@/utils/auth";
 import { Disclosure, Menu, Transition } from "@headlessui/react";
 import {
   Bars3Icon,
@@ -27,7 +27,7 @@ export default function Navbar() {
 
   const handleLogout = async () => {
     try {
-      await logout();
+      removeUserInfo(authKey);
       router.push("/login");
     } catch (error) {
       console.error("Logout failed:", error);

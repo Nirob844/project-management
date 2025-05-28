@@ -1,6 +1,6 @@
 "use client";
 
-import { useGetTasksQuery } from "@/redux/api/taskApi";
+import { useGetMyTaskQuery, useGetTasksQuery } from "@/redux/api/taskApi";
 import { Task } from "@/types/task";
 import { getUserInfo } from "@/utils/auth";
 import { PlusIcon } from "@heroicons/react/24/outline";
@@ -21,7 +21,11 @@ interface UserInfo {
 
 export default function TaskBoard() {
   const { role } = getUserInfo() as UserInfo;
-  const { data: tasks, isLoading, error } = useGetTasksQuery({});
+  const {
+    data: tasks,
+    isLoading,
+    error,
+  } = role === "ADMIN" ? useGetTasksQuery({}) : useGetMyTaskQuery({});
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
 
   if (isLoading) {
@@ -43,7 +47,9 @@ export default function TaskBoard() {
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-center">
-        <h2 className="text-2xl font-semibold text-gray-900">Task Board</h2>
+        <h2 className="text-2xl font-semibold text-gray-900">
+          {role === "ADMIN" ? "Task Board" : "My Tasks"}
+        </h2>
         {role === "ADMIN" && (
           <button
             onClick={() => setIsCreateModalOpen(true)}

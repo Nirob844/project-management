@@ -9,6 +9,34 @@ interface TaskCardProps {
   task: Task;
 }
 
+const getPriorityColor = (priority: string) => {
+  switch (priority) {
+    case "HIGH":
+      return "bg-red-100 text-red-800";
+    case "MEDIUM":
+      return "bg-yellow-100 text-yellow-800";
+    case "LOW":
+      return "bg-green-100 text-green-800";
+    default:
+      return "bg-gray-100 text-gray-800";
+  }
+};
+
+const getStatusColor = (status: Status) => {
+  switch (status) {
+    case "TODO":
+      return "bg-gray-100 text-gray-800";
+    case "IN_PROGRESS":
+      return "bg-blue-100 text-blue-800";
+    case "REVIEW":
+      return "bg-purple-100 text-purple-800";
+    case "DONE":
+      return "bg-green-100 text-green-800";
+    default:
+      return "bg-gray-100 text-gray-800";
+  }
+};
+
 export default function TaskCard({ task }: TaskCardProps) {
   const router = useRouter();
   const [updateTask] = useUpdateTaskMutation();
@@ -35,7 +63,11 @@ export default function TaskCard({ task }: TaskCardProps) {
     >
       <div className="flex items-start justify-between">
         <h3 className="text-lg font-medium text-gray-900">{task.title}</h3>
-        <span className="inline-flex items-center rounded-full px-2 py-1 text-xs font-medium bg-gray-100 text-gray-800">
+        <span
+          className={`inline-flex items-center rounded-full px-2 py-1 text-xs font-medium ${getPriorityColor(
+            task.priority
+          )}`}
+        >
           {task.priority}
         </span>
       </div>
@@ -59,7 +91,9 @@ export default function TaskCard({ task }: TaskCardProps) {
           value={task.status}
           onChange={(e) => handleStatusChange(e.target.value as Status)}
           onClick={(e) => e.stopPropagation()}
-          className="rounded-full px-2 py-1 text-xs font-medium cursor-pointer bg-gray-100 text-gray-800 border-0 focus:ring-0"
+          className={`rounded-full px-2 py-1 text-xs font-medium cursor-pointer border-0 focus:ring-0 ${getStatusColor(
+            task.status
+          )}`}
         >
           <option value="TODO">TODO</option>
           <option value="IN_PROGRESS">IN PROGRESS</option>

@@ -6,6 +6,7 @@ import CreateTaskModal from "@/components/tasks/CreateTaskModal";
 import { useGetProjectByIdQuery } from "@/redux/api/projectApi";
 import { useGetTasksQuery } from "@/redux/api/taskApi";
 import { Task } from "@/types/task";
+import { getUserInfo } from "@/utils/auth";
 import { formatDate } from "@/utils/date";
 import { PencilIcon, PlusIcon, TrashIcon } from "@heroicons/react/24/outline";
 import Link from "next/link";
@@ -16,11 +17,16 @@ interface ProjectDetailProps {
   projectId: string;
 }
 
+interface UserInfo {
+  role: string;
+}
+
 export default function ProjectDetail({ projectId }: ProjectDetailProps) {
   const router = useRouter();
   const [isUpdateModalOpen, setIsUpdateModalOpen] = useState(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [isCreateTaskModalOpen, setIsCreateTaskModalOpen] = useState(false);
+  const { role } = getUserInfo() as UserInfo;
 
   const { data: project, isLoading: isProjectLoading } =
     useGetProjectByIdQuery(projectId);
@@ -73,20 +79,30 @@ export default function ProjectDetail({ projectId }: ProjectDetailProps) {
             {project?.status?.charAt(0)?.toUpperCase() +
               project?.status?.slice(1)}
           </span>
-          <button
-            onClick={() => setIsUpdateModalOpen(true)}
-            className="inline-flex items-center rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50"
-          >
-            <PencilIcon className="-ml-0.5 mr-1.5 h-5 w-5" aria-hidden="true" />
-            Edit Project
-          </button>
-          <button
-            onClick={() => setIsDeleteModalOpen(true)}
-            className="inline-flex items-center rounded-md bg-white px-3 py-2 text-sm font-semibold text-red-600 shadow-sm ring-1 ring-inset ring-red-300 hover:bg-red-50"
-          >
-            <TrashIcon className="-ml-0.5 mr-1.5 h-5 w-5" aria-hidden="true" />
-            Delete Project
-          </button>
+          {role === "ADMIN" && (
+            <>
+              <button
+                onClick={() => setIsUpdateModalOpen(true)}
+                className="inline-flex items-center rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50"
+              >
+                <PencilIcon
+                  className="-ml-0.5 mr-1.5 h-5 w-5"
+                  aria-hidden="true"
+                />
+                Edit Project
+              </button>
+              <button
+                onClick={() => setIsDeleteModalOpen(true)}
+                className="inline-flex items-center rounded-md bg-white px-3 py-2 text-sm font-semibold text-red-600 shadow-sm ring-1 ring-inset ring-red-300 hover:bg-red-50"
+              >
+                <TrashIcon
+                  className="-ml-0.5 mr-1.5 h-5 w-5"
+                  aria-hidden="true"
+                />
+                Delete Project
+              </button>
+            </>
+          )}
         </div>
       </div>
 
@@ -192,25 +208,29 @@ export default function ProjectDetail({ projectId }: ProjectDetailProps) {
         </div>
       </div>
 
-      <UpdateProjectModal
-        isOpen={isUpdateModalOpen}
-        onClose={() => setIsUpdateModalOpen(false)}
-        project={project}
-      />
+      {role === "ADMIN" && (
+        <>
+          <UpdateProjectModal
+            isOpen={isUpdateModalOpen}
+            onClose={() => setIsUpdateModalOpen(false)}
+            project={project}
+          />
 
-      <DeleteProjectModal
-        isOpen={isDeleteModalOpen}
-        onClose={() => {
-          setIsDeleteModalOpen(false);
-          router.push("/dashboard/projects");
-        }}
-        project={project}
-      />
+          <DeleteProjectModal
+            isOpen={isDeleteModalOpen}
+            onClose={() => {
+              setIsDeleteModalOpen(false);
+              router.push("/dashboard/projects");
+            }}
+            project={project}
+          />
 
-      <CreateTaskModal
-        isOpen={isCreateTaskModalOpen}
-        onClose={() => setIsCreateTaskModalOpen(false)}
-      />
+          <CreateTaskModal
+            isOpen={isCreateTaskModalOpen}
+            onClose={() => setIsCreateTaskModalOpen(false)}
+          />
+        </>
+      )}
     </div>
   );
 }

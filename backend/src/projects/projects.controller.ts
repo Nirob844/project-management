@@ -62,14 +62,7 @@ export class ProjectsController {
   @ApiResponse({ status: 200, description: 'Return project details' })
   @ApiResponse({ status: 404, description: 'Project not found' })
   async findOne(@Param('id') id: string, @Request() req) {
-    const project = await this.projectsService.findOne(id);
-    if (
-      project.ownerId !== req.user.id &&
-      !project.members.some((member) => member.id === req.user.id)
-    ) {
-      throw new ForbiddenException('You do not have access to this project');
-    }
-    return project;
+    return this.projectsService.findOne(id);
   }
 
   @Patch(':id')
@@ -96,13 +89,8 @@ export class ProjectsController {
   }
 
   @Delete(':id')
-  @Roles(Role.ADMIN)
   @ApiOperation({ summary: 'Delete project (Admin only)' })
   @ApiResponse({ status: 200, description: 'Project deleted successfully' })
-  @ApiResponse({
-    status: 403,
-    description: 'Forbidden - Admin access required',
-  })
   @ApiResponse({ status: 404, description: 'Project not found' })
   async remove(@Param('id') id: string, @Request() req) {
     const project = await this.projectsService.findOne(id);
