@@ -13,19 +13,6 @@ export default function TaskCard({ task }: TaskCardProps) {
   const router = useRouter();
   const [updateTask] = useUpdateTaskMutation();
 
-  const priorityColors = {
-    LOW: "bg-blue-100 text-blue-800",
-    MEDIUM: "bg-yellow-100 text-yellow-800",
-    HIGH: "bg-red-100 text-red-800",
-  };
-
-  const statusColors = {
-    TODO: "bg-gray-100 text-gray-800",
-    IN_PROGRESS: "bg-blue-100 text-blue-800",
-    REVIEW: "bg-green-100 text-green-800",
-    DONE: "bg-yellow-100 text-yellow-800",
-  };
-
   const handleStatusChange = async (newStatus: Status) => {
     try {
       await updateTask({
@@ -48,11 +35,7 @@ export default function TaskCard({ task }: TaskCardProps) {
     >
       <div className="flex items-start justify-between">
         <h3 className="text-lg font-medium text-gray-900">{task.title}</h3>
-        <span
-          className={`inline-flex items-center rounded-full px-2 py-1 text-xs font-medium ${
-            priorityColors[task.priority]
-          }`}
-        >
+        <span className="inline-flex items-center rounded-full px-2 py-1 text-xs font-medium bg-gray-100 text-gray-800">
           {task.priority}
         </span>
       </div>
@@ -76,9 +59,7 @@ export default function TaskCard({ task }: TaskCardProps) {
           value={task.status}
           onChange={(e) => handleStatusChange(e.target.value as Status)}
           onClick={(e) => e.stopPropagation()}
-          className={`rounded-full px-2 py-1 text-xs font-medium cursor-pointer ${
-            statusColors[task.status]
-          } border-0 focus:ring-0`}
+          className="rounded-full px-2 py-1 text-xs font-medium cursor-pointer bg-gray-100 text-gray-800 border-0 focus:ring-0"
         >
           <option value="TODO">TODO</option>
           <option value="IN_PROGRESS">IN PROGRESS</option>
