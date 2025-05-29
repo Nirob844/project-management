@@ -7,6 +7,7 @@ import { Project } from "@/types/project";
 import { Priority, Status } from "@/types/task";
 import { User } from "@/types/user";
 import { useForm } from "react-hook-form";
+import { toast } from "react-hot-toast";
 import Modal from "../ui/Modal";
 
 interface CreateTaskModalProps {
@@ -52,10 +53,11 @@ export default function CreateTaskModal({
       };
 
       await createTask(formattedData).unwrap();
+      toast.success("Task created successfully");
       reset();
       onClose();
-    } catch (err) {
-      console.error("Failed to create task:", err);
+    } catch (err: any) {
+      toast.error(err.message || "Failed to create task");
     }
   };
 

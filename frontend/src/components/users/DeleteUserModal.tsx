@@ -2,6 +2,7 @@
 
 import { useDeleteUserMutation } from "@/redux/api/userApi";
 import { User } from "@/types/user";
+import { toast } from "react-hot-toast";
 import Modal from "../common/Modal";
 
 interface DeleteUserModalProps {
@@ -20,9 +21,10 @@ export default function DeleteUserModal({
   const handleDelete = async () => {
     try {
       await deleteUser(user.id).unwrap();
+      toast.success("User deleted successfully");
       onClose();
-    } catch (error) {
-      console.error("Failed to delete user:", error);
+    } catch (error: any) {
+      toast.error(error.message || "Failed to delete user");
     }
   };
 

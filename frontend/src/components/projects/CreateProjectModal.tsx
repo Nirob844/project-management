@@ -2,6 +2,7 @@
 
 import { useCreateProjectMutation } from "@/redux/api/projectApi";
 import { useForm } from "react-hook-form";
+import { toast } from "react-hot-toast";
 import Modal from "../ui/Modal";
 
 interface CreateProjectModalProps {
@@ -19,7 +20,7 @@ export default function CreateProjectModal({
   isOpen,
   onClose,
 }: CreateProjectModalProps) {
-  const [createProject, { isLoading, error }] = useCreateProjectMutation();
+  const [createProject, { isLoading }] = useCreateProjectMutation();
   const {
     register,
     handleSubmit,
@@ -34,10 +35,11 @@ export default function CreateProjectModal({
   const onSubmit = async (data: FormData) => {
     try {
       await createProject(data).unwrap();
+      toast.success("Project created successfully");
       reset();
       onClose();
-    } catch (err) {
-      console.error("Failed to create project:", err);
+    } catch (err: any) {
+      toast.error(err.message || "Failed to create project");
     }
   };
 
@@ -104,23 +106,6 @@ export default function CreateProjectModal({
             <p className="mt-1 text-sm text-red-600">{errors.status.message}</p>
           )}
         </div>
-
-        {error && (
-          <div className="rounded-md bg-red-50 p-4">
-            <div className="flex">
-              <div className="ml-3">
-                <h3 className="text-sm font-medium text-red-800">
-                  Error creating project
-                </h3>
-                <div className="mt-2 text-sm text-red-700">
-                  {error instanceof Error
-                    ? error.message
-                    : "Failed to create project"}
-                </div>
-              </div>
-            </div>
-          </div>
-        )}
 
         <div className="mt-5 sm:mt-6 sm:grid sm:grid-flow-row-dense sm:grid-cols-2 sm:gap-3">
           <button

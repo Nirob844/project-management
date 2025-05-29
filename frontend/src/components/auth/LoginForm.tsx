@@ -6,15 +6,14 @@ import { setToLocalStorage } from "@/utils/local-storage";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { toast } from "react-hot-toast";
 
 export default function LoginForm() {
   const router = useRouter();
-  const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    setError("");
     setIsLoading(true);
 
     const formData = new FormData(e.currentTarget);
@@ -24,9 +23,10 @@ export default function LoginForm() {
     try {
       const response = await login({ email, password });
       setToLocalStorage(authKey, response.accessToken);
+      toast.success("Login successful!");
       router.push("/dashboard");
     } catch (err: any) {
-      setError(err.message || "Failed to login");
+      toast.error(err.message || "Failed to login");
     } finally {
       setIsLoading(false);
     }
@@ -42,12 +42,6 @@ export default function LoginForm() {
 
       <div className="mt-10 sm:mx-auto sm:w-full sm:max-w-sm">
         <form className="space-y-6" onSubmit={handleSubmit}>
-          {error && (
-            <div className="rounded-md bg-red-50 p-4">
-              <div className="text-sm text-red-700">{error}</div>
-            </div>
-          )}
-
           <div>
             <label
               htmlFor="email"

@@ -172,7 +172,8 @@ export default function ProjectList() {
                   setIsDeleteModalOpen(false);
                   setSelectedProject(null);
                 }}
-                project={selectedProject}
+                projectId={selectedProject.id}
+                projectName={selectedProject.name}
               />
             </>
           )}

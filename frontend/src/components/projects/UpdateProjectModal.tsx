@@ -1,20 +1,25 @@
 "use client";
 
 import { useUpdateProjectMutation } from "@/redux/api/projectApi";
-import { Project } from "@/types/project";
 import { useForm } from "react-hook-form";
+import { toast } from "react-hot-toast";
 import Modal from "../ui/Modal";
 
 interface UpdateProjectModalProps {
   isOpen: boolean;
   onClose: () => void;
-  project: Project;
+  project: {
+    id: string;
+    name: string;
+    description: string;
+    status: string;
+  };
 }
 
 interface FormData {
   name: string;
   description: string;
-  status: "ACTIVE" | "ARCHIVED" | "DONE";
+  status: string;
 }
 
 export default function UpdateProjectModal({
@@ -22,11 +27,12 @@ export default function UpdateProjectModal({
   onClose,
   project,
 }: UpdateProjectModalProps) {
-  const [updateProject, { isLoading, error }] = useUpdateProjectMutation();
+  const [updateProject, { isLoading }] = useUpdateProjectMutation();
   const {
     register,
     handleSubmit,
     formState: { errors },
+    reset,
   } = useForm<FormData>({
     defaultValues: {
       name: project.name,
@@ -38,9 +44,11 @@ export default function UpdateProjectModal({
   const onSubmit = async (data: FormData) => {
     try {
       await updateProject({ id: project.id, ...data }).unwrap();
+      toast.success("Project updated successfully");
+      reset();
       onClose();
-    } catch (err) {
-      console.error("Failed to update project:", err);
+    } catch (err: any) {
+      toast.error(err.message || "Failed to update project");
     }
   };
 
@@ -107,23 +115,6 @@ export default function UpdateProjectModal({
             <p className="mt-1 text-sm text-red-600">{errors.status.message}</p>
           )}
         </div>
-
-        {error && (
-          <div className="rounded-md bg-red-50 p-4">
-            <div className="flex">
-              <div className="ml-3">
-                <h3 className="text-sm font-medium text-red-800">
-                  Error updating project
-                </h3>
-                <div className="mt-2 text-sm text-red-700">
-                  {error instanceof Error
-                    ? error.message
-                    : "Failed to update project"}
-                </div>
-              </div>
-            </div>
-          </div>
-        )}
 
         <div className="mt-5 sm:mt-6 sm:grid sm:grid-flow-row-dense sm:grid-cols-2 sm:gap-3">
           <button

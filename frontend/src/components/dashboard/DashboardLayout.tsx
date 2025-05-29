@@ -5,8 +5,6 @@ import { getUserInfo, removeUserInfo } from "@/utils/auth";
 import { Dialog, Transition } from "@headlessui/react";
 import {
   CalendarIcon,
-  ChartBarIcon,
-  Cog6ToothIcon,
   FolderIcon,
   HomeIcon,
   UserGroupIcon,
@@ -58,12 +56,6 @@ const adminNavigation = [
     icon: UserPlusIcon,
     roles: ["ADMIN"],
   },
-  {
-    name: "Analytics",
-    href: "/dashboard/analytics",
-    icon: ChartBarIcon,
-    roles: ["ADMIN"],
-  },
 ];
 
 const projectManagerNavigation = [
@@ -72,15 +64,6 @@ const projectManagerNavigation = [
     href: "/dashboard/team",
     icon: UserGroupIcon,
     roles: ["PROJECT_MANAGER"],
-  },
-];
-
-const settingsNavigation = [
-  {
-    name: "Settings",
-    href: "/dashboard/settings",
-    icon: Cog6ToothIcon,
-    roles: ["ADMIN", "USER", "PROJECT_MANAGER"],
   },
 ];
 
@@ -117,7 +100,6 @@ export default function DashboardLayout({
       ...baseNavigation,
       ...adminNavigation,
       ...projectManagerNavigation,
-      ...settingsNavigation,
     ];
     return allNavigation.filter((item) => item.roles.includes(role));
   };

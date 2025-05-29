@@ -115,14 +115,86 @@ export default function TaskDetail({ taskId }: TaskDetailProps) {
 
           <div className="grid grid-cols-2 gap-6">
             <div>
+              <h3 className="text-sm font-medium text-gray-500">Project</h3>
+              <div className="mt-2">
+                <p className="text-sm font-medium text-gray-900">
+                  {task.project.name}
+                </p>
+                <p className="text-sm text-gray-500">
+                  {task.project.description}
+                </p>
+                <span
+                  className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium mt-1 ${
+                    task.project.status === "ACTIVE"
+                      ? "bg-green-100 text-green-800"
+                      : task.project.status === "DONE"
+                      ? "bg-blue-100 text-blue-800"
+                      : "bg-gray-100 text-gray-800"
+                  }`}
+                >
+                  {task.project.status}
+                </span>
+              </div>
+            </div>
+
+            <div>
               <h3 className="text-sm font-medium text-gray-500">Due Date</h3>
               <p className="mt-2 text-sm text-gray-900">
                 {new Date(task.dueDate).toLocaleDateString()}
               </p>
             </div>
+          </div>
+
+          <div className="grid grid-cols-2 gap-6">
             <div>
               <h3 className="text-sm font-medium text-gray-500">Assignee</h3>
-              <p className="mt-2 text-sm text-gray-900">{task.assignee.name}</p>
+              <div className="mt-2 flex items-center space-x-3">
+                <div className="h-8 w-8 rounded-full bg-gray-200 flex items-center justify-center">
+                  <span className="text-sm font-medium text-gray-600">
+                    {task.assignee.name.charAt(0)}
+                  </span>
+                </div>
+                <div>
+                  <p className="text-sm font-medium text-gray-900">
+                    {task.assignee.name}
+                  </p>
+                  <p className="text-sm text-gray-500">{task.assignee.email}</p>
+                </div>
+              </div>
+            </div>
+
+            <div>
+              <h3 className="text-sm font-medium text-gray-500">Created By</h3>
+              <div className="mt-2 flex items-center space-x-3">
+                <div className="h-8 w-8 rounded-full bg-gray-200 flex items-center justify-center">
+                  <span className="text-sm font-medium text-gray-600">
+                    {task.creator.name.charAt(0)}
+                  </span>
+                </div>
+                <div>
+                  <p className="text-sm font-medium text-gray-900">
+                    {task.creator.name}
+                  </p>
+                  <p className="text-sm text-gray-500">{task.creator.email}</p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-2 gap-6">
+            <div>
+              <h3 className="text-sm font-medium text-gray-500">Created At</h3>
+              <p className="mt-2 text-sm text-gray-900">
+                {new Date(task.createdAt).toLocaleString()}
+              </p>
+            </div>
+            <div>
+              <h3 className="text-sm font-medium text-gray-500">
+                Last Updated
+              </h3>
+              <p className="mt-2 text-sm text-gray-900">
+                {new Date(task.updatedAt).toLocaleString()}
+              </p>
             </div>
           </div>
         </div>
@@ -139,7 +211,8 @@ export default function TaskDetail({ taskId }: TaskDetailProps) {
           <DeleteTaskModal
             isOpen={isDeleteModalOpen}
             onClose={() => setIsDeleteModalOpen(false)}
-            taskId={taskId}
+            taskId={task.id}
+            taskTitle={task.title}
           />
         </>
       )}

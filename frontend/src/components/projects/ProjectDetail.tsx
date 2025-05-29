@@ -222,7 +222,8 @@ export default function ProjectDetail({ projectId }: ProjectDetailProps) {
               setIsDeleteModalOpen(false);
               router.push("/dashboard/projects");
             }}
-            project={project}
+            projectId={project.id}
+            projectName={project.name}
           />
 
           <CreateTaskModal

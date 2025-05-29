@@ -3,6 +3,7 @@
 import { useUpdateUserMutation } from "@/redux/api/userApi";
 import { User } from "@/types/user";
 import { useForm } from "react-hook-form";
+import { toast } from "react-hot-toast";
 import Modal from "../common/Modal";
 
 interface UpdateUserModalProps {
@@ -39,9 +40,10 @@ export default function UpdateUserModal({
   const onSubmit = async (data: FormData) => {
     try {
       await updateUser({ id: user.id, ...data }).unwrap();
+      toast.success("User updated successfully");
       onClose();
-    } catch (error) {
-      console.error("Failed to update user:", error);
+    } catch (error: any) {
+      toast.error(error.message || "Failed to update user");
     }
   };
 

@@ -3,6 +3,7 @@
 import Footer from "@/components/Footer";
 import { store } from "@/redux/store";
 import { Inter } from "next/font/google";
+import { Toaster } from "react-hot-toast";
 import { Provider } from "react-redux";
 import "./globals.css";
 const inter = Inter({ subsets: ["latin"] });
@@ -25,6 +26,7 @@ export default function RootLayout({
             <main className="flex-grow">{children}</main>
             <Footer />
           </div>
+          <Toaster position="top-right" />
         </Provider>
       </body>
     </html>

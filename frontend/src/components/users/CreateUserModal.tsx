@@ -2,6 +2,7 @@
 
 import { useCreateUserMutation } from "@/redux/api/userApi";
 import { useForm } from "react-hook-form";
+import { toast } from "react-hot-toast";
 import Modal from "../common/Modal";
 
 interface CreateUserModalProps {
@@ -39,10 +40,11 @@ export default function CreateUserModal({
   const onSubmit = async (data: FormData) => {
     try {
       await createUser(data).unwrap();
+      toast.success("User created successfully");
       reset();
       onClose();
-    } catch (error) {
-      console.error("Failed to create user:", error);
+    } catch (error: any) {
+      toast.error(error.message || "Failed to create user");
     }
   };
 
