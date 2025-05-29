@@ -48,8 +48,12 @@ export class NotificationsService {
     }
 
     const notifications = await this.prisma.notification.findMany({
-      where: { userId },
-      orderBy: { createdAt: 'desc' },
+      where: {
+        userId: userId,
+      },
+      orderBy: {
+        createdAt: 'desc',
+      },
     });
 
     await this.cacheService.set(

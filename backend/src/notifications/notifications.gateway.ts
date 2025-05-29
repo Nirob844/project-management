@@ -12,8 +12,12 @@ import { WsJwtAuthGuard } from '../auth/guards/ws-jwt-auth.guard';
 @WebSocketGateway({
   cors: {
     origin: process.env.FRONTEND_URL || 'http://localhost:3000',
+    methods: ['GET', 'POST'],
     credentials: true,
+    allowedHeaders: ['Content-Type', 'Authorization'],
   },
+  namespace: 'notifications',
+  transports: ['websocket', 'polling'],
 })
 @UseGuards(WsJwtAuthGuard)
 export class NotificationsGateway

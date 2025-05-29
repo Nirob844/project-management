@@ -11,6 +11,7 @@ import {
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Fragment } from "react";
+import NotificationDropdown from "./notifications/NotificationDropdown";
 
 interface UserInfo {
   sub: string;
@@ -52,6 +53,7 @@ export default function Navbar() {
               </div>
               <div className="hidden sm:ml-6 sm:flex sm:items-center">
                 <span className="mr-4 text-sm text-gray-500">({role})</span>
+                <NotificationDropdown />
                 <Menu as="div" className="relative ml-3">
                   <div>
                     <Menu.Button className="flex rounded-full bg-white text-sm focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2">
