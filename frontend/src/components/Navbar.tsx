@@ -10,7 +10,7 @@ import {
 } from "@heroicons/react/24/outline";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { Fragment } from "react";
+import { Fragment, useEffect, useState } from "react";
 import NotificationDropdown from "./notifications/NotificationDropdown";
 
 interface UserInfo {
@@ -24,7 +24,12 @@ function classNames(...classes: string[]) {
 
 export default function Navbar() {
   const router = useRouter();
+  const [mounted, setMounted] = useState(false);
   const { role } = getUserInfo() as UserInfo;
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   const handleLogout = async () => {
     try {
@@ -52,7 +57,9 @@ export default function Navbar() {
                 </div>
               </div>
               <div className="hidden sm:ml-6 sm:flex sm:items-center">
-                <span className="mr-4 text-sm text-gray-500">({role})</span>
+                {mounted && (
+                  <span className="mr-4 text-sm text-gray-500">({role})</span>
+                )}
                 <NotificationDropdown />
                 <Menu as="div" className="relative ml-3">
                   <div>
@@ -135,7 +142,9 @@ export default function Navbar() {
                 </div>
                 <div className="ml-3">
                   <div className="text-sm font-medium text-gray-500"></div>
-                  <div className="text-xs text-gray-400">{role}</div>
+                  {mounted && (
+                    <div className="text-xs text-gray-400">{role}</div>
+                  )}
                 </div>
               </div>
               <div className="mt-3 space-y-1">

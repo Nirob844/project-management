@@ -4,7 +4,7 @@ import { useGetMyTaskQuery, useGetTasksQuery } from "@/redux/api/taskApi";
 import { Task } from "@/types/task";
 import { getUserInfo } from "@/utils/auth";
 import { PlusIcon } from "@heroicons/react/24/outline";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import CreateTaskModal from "./CreateTaskModal";
 import TaskCard from "./TaskCard";
 
@@ -20,13 +20,28 @@ interface UserInfo {
 }
 
 export default function TaskBoard() {
+  const [mounted, setMounted] = useState(false);
   const { role } = getUserInfo() as UserInfo;
   const {
     data: tasks,
     isLoading,
     error,
-  } = role === "ADMIN" ? useGetTasksQuery({}) : useGetMyTaskQuery({});
+  } = mounted && role === "ADMIN"
+    ? useGetTasksQuery({})
+    : useGetMyTaskQuery({});
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  if (!mounted) {
+    return (
+      <div className="flex items-center justify-center h-64">
+        <div className="text-gray-500">Loading...</div>
+      </div>
+    );
+  }
 
   if (isLoading) {
     return (
