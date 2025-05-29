@@ -1,11 +1,12 @@
 "use client";
 import {
+  useDeleteNotificationMutation,
   useGetNotificationsQuery,
   useMarkNotificationAsReadMutation,
 } from "@/redux/api/notificationApi";
 import { getUserInfo } from "@/utils/auth";
 import { Menu, Transition } from "@headlessui/react";
-import { BellIcon } from "@heroicons/react/24/outline";
+import { BellIcon, TrashIcon } from "@heroicons/react/24/outline";
 import { Fragment, useEffect, useState } from "react";
 import { io } from "socket.io-client";
 
@@ -23,6 +24,7 @@ export default function NotificationDropdown() {
   const [unreadCount, setUnreadCount] = useState(0);
   const { data: notificationsData, refetch } = useGetNotificationsQuery();
   const [markAsRead] = useMarkNotificationAsReadMutation();
+  const [deleteNotification] = useDeleteNotificationMutation();
 
   useEffect(() => {
     if (notificationsData) {
@@ -79,6 +81,22 @@ export default function NotificationDropdown() {
     }
   };
 
+  const handleDeleteNotification = async (
+    e: React.MouseEvent,
+    notification: Notification
+  ) => {
+    e.stopPropagation();
+    try {
+      await deleteNotification(notification.id).unwrap();
+      setNotifications((prev) => prev.filter((n) => n.id !== notification.id));
+      if (!notification.isRead) {
+        setUnreadCount((prev) => Math.max(0, prev - 1));
+      }
+    } catch (error) {
+      console.error("Failed to delete notification:", error);
+    }
+  };
+
   return (
     <Menu as="div" className="relative ml-3">
       <div>
@@ -114,22 +132,34 @@ export default function NotificationDropdown() {
               notifications.map((notification) => (
                 <Menu.Item key={notification.id}>
                   {({ active }) => (
-                    <button
-                      onClick={() => handleNotificationClick(notification)}
+                    <div
                       className={`${active ? "bg-gray-100" : ""} ${
                         !notification.isRead ? "bg-blue-50" : ""
-                      } block w-full text-left px-4 py-2 text-sm`}
+                      } block w-full text-left px-4 py-2 text-sm relative group`}
                     >
-                      <div className="font-medium text-gray-900">
-                        {notification.title}
-                      </div>
-                      <div className="text-gray-500">
-                        {notification.message}
-                      </div>
-                      <div className="text-xs text-gray-400 mt-1">
-                        {new Date(notification.createdAt).toLocaleString()}
-                      </div>
-                    </button>
+                      <button
+                        onClick={() => handleNotificationClick(notification)}
+                        className="w-full text-left"
+                      >
+                        <div className="font-medium text-gray-900">
+                          {notification.title}
+                        </div>
+                        <div className="text-gray-500">
+                          {notification.message}
+                        </div>
+                        <div className="text-xs text-gray-400 mt-1">
+                          {new Date(notification.createdAt).toLocaleString()}
+                        </div>
+                      </button>
+                      <button
+                        onClick={(e) =>
+                          handleDeleteNotification(e, notification)
+                        }
+                        className="absolute right-2 top-1/2 -translate-y-1/2 p-1 rounded-full hover:bg-gray-200 opacity-0 group-hover:opacity-100 transition-opacity"
+                      >
+                        <TrashIcon className="h-4 w-4 text-gray-500" />
+                      </button>
+                    </div>
                   )}
                 </Menu.Item>
               ))
