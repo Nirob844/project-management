@@ -1,6 +1,7 @@
 "use client";
 
 import { useDeleteTaskMutation } from "@/redux/api/taskApi";
+import { useRouter } from "next/navigation";
 import { toast } from "react-hot-toast";
 import Modal from "../ui/Modal";
 
@@ -17,11 +18,13 @@ export default function DeleteTaskModal({
   taskId,
   taskTitle,
 }: DeleteTaskModalProps) {
+  const router = useRouter();
   const [deleteTask, { isLoading }] = useDeleteTaskMutation();
 
   const handleDelete = async () => {
     try {
       await deleteTask(taskId).unwrap();
+      router.push("/dashboard/tasks");
       toast.success("Task deleted successfully");
       onClose();
     } catch (err: any) {

@@ -2,7 +2,7 @@
 
 import { useUpdateTaskMutation } from "@/redux/api/taskApi";
 import { Status, Task } from "@/types/task";
-import { CalendarIcon, UserCircleIcon } from "@heroicons/react/24/outline";
+import { UserCircleIcon } from "@heroicons/react/24/outline";
 import { useRouter } from "next/navigation";
 
 interface TaskCardProps {
@@ -59,12 +59,14 @@ export default function TaskCard({ task }: TaskCardProps) {
   return (
     <div
       onClick={handleCardClick}
-      className="bg-white rounded-lg shadow p-4 hover:shadow-md transition-shadow cursor-pointer"
+      className="bg-white rounded-xl shadow-sm hover:shadow-md transition-all duration-200 cursor-pointer p-5 border border-gray-100 hover:border-gray-200"
     >
-      <div className="flex items-start justify-between">
-        <h3 className="text-lg font-medium text-gray-900">{task.title}</h3>
+      <div className="flex items-start justify-between mb-3">
+        <h3 className="text-lg font-semibold text-gray-900 pr-2">
+          {task.title}
+        </h3>
         <span
-          className={`inline-flex items-center rounded-full px-2 py-1 text-xs font-medium ${getPriorityColor(
+          className={`inline-flex items-center rounded-full px-2.5 py-1 text-xs font-medium ${getPriorityColor(
             task.priority
           )}`}
         >
@@ -72,18 +74,18 @@ export default function TaskCard({ task }: TaskCardProps) {
         </span>
       </div>
 
-      <p className="mt-2 text-sm text-gray-500 line-clamp-2">
+      <p className="text-sm text-gray-600 line-clamp-2 mb-4">
         {task.description}
       </p>
 
-      <div className="mt-4 flex items-center justify-between">
+      <div className="flex items-center justify-between border-t border-gray-100 pt-4">
         <div className="flex items-center space-x-4">
-          <div className="flex items-center text-sm text-gray-500">
-            <CalendarIcon className="mr-1.5 h-5 w-5 flex-shrink-0 text-gray-400" />
+          {/* <div className="flex items-center text-sm text-gray-500">
+            <CalendarIcon className="mr-1.5 h-4 w-4 flex-shrink-0 text-gray-400" />
             {new Date(task.dueDate).toLocaleDateString()}
-          </div>
+          </div> */}
           <div className="flex items-center text-sm text-gray-500">
-            <UserCircleIcon className="mr-1.5 h-5 w-5 flex-shrink-0 text-gray-400" />
+            <UserCircleIcon className="mr-1.5 h-4 w-4 flex-shrink-0 text-gray-400" />
             {task.assignee.name}
           </div>
         </div>
@@ -91,7 +93,7 @@ export default function TaskCard({ task }: TaskCardProps) {
           value={task.status}
           onChange={(e) => handleStatusChange(e.target.value as Status)}
           onClick={(e) => e.stopPropagation()}
-          className={`rounded-full px-2 py-1 text-xs font-medium cursor-pointer border-0 focus:ring-0 ${getStatusColor(
+          className={`rounded-full px-3 py-1 text-xs font-medium cursor-pointer border-0 focus:ring-0 transition-colors duration-200 ${getStatusColor(
             task.status
           )}`}
         >

@@ -40,6 +40,16 @@ export const taskApi = baseApi.injectEndpoints({
       providesTags: [tagTypes.task],
     }),
 
+    getTaskByProjectId: build.query({
+      query: (projectId) => {
+        return {
+          url: `${TASK_URL}/project/${projectId}`,
+          method: "GET",
+        };
+      },
+      providesTags: [tagTypes.task],
+    }),
+
     updateTask: build.mutation({
       query: ({ id, ...data }) => ({
         url: `${TASK_URL}/${id}`,
@@ -64,6 +74,7 @@ export const {
   useGetTasksQuery,
   useGetMyTaskQuery,
   useGetTaskByIdQuery,
+  useGetTaskByProjectIdQuery,
   useUpdateTaskMutation,
   useDeleteTaskMutation,
 } = taskApi;

@@ -1,6 +1,7 @@
 "use client";
 
 import { useDeleteProjectMutation } from "@/redux/api/projectApi";
+import { useRouter } from "next/navigation";
 import { toast } from "react-hot-toast";
 import Modal from "../ui/Modal";
 
@@ -17,11 +18,13 @@ export default function DeleteProjectModal({
   projectId,
   projectName,
 }: DeleteProjectModalProps) {
+  const router = useRouter();
   const [deleteProject, { isLoading }] = useDeleteProjectMutation();
 
   const handleDelete = async () => {
     try {
       await deleteProject(projectId).unwrap();
+      router.push("/dashboard/projects");
       toast.success("Project deleted successfully");
       onClose();
     } catch (err: any) {

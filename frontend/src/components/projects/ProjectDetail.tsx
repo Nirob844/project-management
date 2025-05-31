@@ -4,7 +4,7 @@ import DeleteProjectModal from "@/components/projects/DeleteProjectModal";
 import UpdateProjectModal from "@/components/projects/UpdateProjectModal";
 import CreateTaskModal from "@/components/tasks/CreateTaskModal";
 import { useGetProjectByIdQuery } from "@/redux/api/projectApi";
-import { useGetTasksQuery } from "@/redux/api/taskApi";
+import { useGetTaskByProjectIdQuery } from "@/redux/api/taskApi";
 import { Task } from "@/types/task";
 import { getUserInfo } from "@/utils/auth";
 import { formatDate } from "@/utils/date";
@@ -30,7 +30,8 @@ export default function ProjectDetail({ projectId }: ProjectDetailProps) {
 
   const { data: project, isLoading: isProjectLoading } =
     useGetProjectByIdQuery(projectId);
-  const { data: tasks, isLoading: isTasksLoading } = useGetTasksQuery({});
+  const { data: tasks, isLoading: isTasksLoading } =
+    useGetTaskByProjectIdQuery(projectId);
 
   if (isProjectLoading || isTasksLoading) {
     return (
