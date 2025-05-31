@@ -106,7 +106,7 @@ export class AuthService {
     return {
       accessToken,
       refreshToken,
-      expiresIn: parseInt(this.configService.get('JWT_EXPIRATION') || '3600'),
+      expiresIn: parseInt(this.configService.get('JWT_EXPIRATION') || '1d'),
     };
   }
 }
