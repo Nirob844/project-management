@@ -262,6 +262,19 @@ export class TasksService {
   private async invalidateCache(taskId?: string) {
     if (taskId) {
       await this.cacheService.del(this.CACHE_KEYS.TASK + taskId);
+
+      // Get the task to find its assignee
+      const task = await this.prisma.task.findUnique({
+        where: { id: taskId },
+        select: { assigneeId: true },
+      });
+
+      // Invalidate the assignee's task cache if exists
+      if (task?.assigneeId) {
+        await this.cacheService.del(
+          this.CACHE_KEYS.USER_TASKS + task.assigneeId,
+        );
+      }
     }
     await this.cacheService.del(this.CACHE_KEYS.TASKS);
   }

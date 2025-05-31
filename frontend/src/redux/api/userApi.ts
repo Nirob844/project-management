@@ -1,4 +1,4 @@
-import { tagTypes } from "../teg-types";
+import { tagTypes } from "../tag-types";
 import { baseApi } from "./baseApi";
 
 const USER_URL = "/users";
